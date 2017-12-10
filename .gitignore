@@ -1,4 +1,6 @@
-/bin/
-.classpath
-.project
-*.pro.user
+build*
+cpp/*.pro.user
+java/.settings
+java/.classpath
+java/.project
+java/target

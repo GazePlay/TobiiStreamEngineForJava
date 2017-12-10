@@ -1,22 +1,25 @@
-#include "jni_tobii.h"
+#include "tobii_jni.h"
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 #include "tobii/tobii.h"
 #include "tobii/tobii_streams.h"
 #include "tobii/tobii_wearable.h"
 #include "tobii/tobii_engine.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <inttypes.h>
+#ifdef __cplusplus
+}
+#endif
 
 #include <Windows.h>
 
-static void gaze_callback(tobii_gaze_point_t const* gaze_point, void* user_data)
-{
-    tobii_gaze_point_t* gaze_point_storage = (tobii_gaze_point_t*)user_data;
-    *gaze_point_storage = *gaze_point;
-}
+#include <string>
+#include <sstream>
+
+using namespace std;
 
 struct url_receiver_context_t
 {
@@ -24,6 +27,32 @@ struct url_receiver_context_t
     int capacity;
     int count;
 };
+
+struct device_list_t
+{
+    char** urls;
+    int count;
+};
+/*
+struct thread_context_t
+{
+    tobii_device_t* device;
+    HANDLE reconnect_event;
+    HANDLE timesync_event;
+    HANDLE exit_event;
+    volatile LONG is_reconnecting;
+};
+*/
+//static tobii_device_t* device;
+
+//static thread_context_t thread_context;
+
+static tobii_gaze_point_t latest_gaze_point;
+
+static void gaze_callback(const tobii_gaze_point_t* gaze_point, void*)
+{
+    latest_gaze_point = *gaze_point;
+}
 
 static void url_receiver(char const* url, void* user_data)
 {
@@ -51,12 +80,6 @@ static void url_receiver(char const* url, void* user_data)
     memcpy(context->urls[context->count++], url, url_length);
 }
 
-struct device_list_t
-{
-    char** urls;
-    int count;
-};
-
 static struct device_list_t list_devices(tobii_api_t* api)
 {
     struct device_list_t list = { NULL, 0 };
@@ -79,38 +102,14 @@ static struct device_list_t list_devices(tobii_api_t* api)
     return list;
 }
 
-
-static void free_device_list(struct device_list_t* list)
+static void free_device_list(device_list_t* list)
 {
     for (int i = 0; i < list->count; ++i)
         free(list->urls[i]);
 
     free(list->urls);
 }
-
-static char const* select_device(struct device_list_t* devices)
-{
-    int tmp = 0, selection = 0;
-
-    while (selection < 1 || selection > devices->count)
-    {
-        printf("\nSelect a device\n\n");
-        for (int i = 0; i < devices->count; ++i) printf("%d. %s\n", i + 1, devices->urls[i]);
-        if (scanf_s("%d", &selection) <= 0) while ((tmp = getchar()) != '\n' && tmp != EOF);
-    }
-
-    return devices->urls[selection - 1];
-}
-
-struct thread_context_t
-{
-    tobii_device_t* device;
-    HANDLE reconnect_event;
-    HANDLE timesync_event;
-    HANDLE exit_event;
-    volatile LONG is_reconnecting;
-};
-
+/*
 static DWORD WINAPI reconnect_and_timesync_thread(LPVOID param)
 {
     struct thread_context_t* context = (struct thread_context_t*) param;
@@ -156,86 +155,54 @@ static DWORD WINAPI reconnect_and_timesync_thread(LPVOID param)
         }
     }
 }
-
-static void log_func(void* log_context, tobii_log_level_t level, char const* text)
+*/
+JNIEXPORT jint JNICALL Java_tobii_Tobii_jniInit(JNIEnv*, jclass)
 {
-    CRITICAL_SECTION* log_mutex = (CRITICAL_SECTION*)log_context;
-
-    EnterCriticalSection(log_mutex);
-    if (level == TOBII_LOG_LEVEL_ERROR)
-        fprintf(stderr, "Logged error: %s\n", text);
-    LeaveCriticalSection(log_mutex);
-}
-
-static tobii_device_t* device;
-static struct thread_context_t thread_context;
-static tobii_gaze_point_t latest_gaze_point;
-static char* return_string;
-
-JNIEXPORT jint JNICALL Java_jni_tobii_init(JNIEnv* env, jclass c)
-{
-    (void)(env);
-    (void)(c);
-    static CRITICAL_SECTION log_mutex;
-    InitializeCriticalSection(&log_mutex);
-    tobii_custom_log_t custom_log = { &log_mutex, log_func };
-
     tobii_api_t* api;
-    tobii_error_t error = tobii_api_create(&api, NULL, &custom_log);
+
+    tobii_error_t error = tobii_api_create(&api, NULL, NULL);
     if (error != TOBII_ERROR_NO_ERROR)
     {
-        //fprintf(stderr, "Failed to initialize the Tobii Stream Engine API.\n");
-        DeleteCriticalSection(&log_mutex);
         return -1;
     }
 
     struct device_list_t devices = list_devices(api);
     if (devices.count == 0)
     {
-        //fprintf(stderr, "No stream engine compatible device(s) found.\n");
         free_device_list(&devices);
         tobii_api_destroy(api);
-        DeleteCriticalSection(&log_mutex);
         return -2;
     }
-    char const* selected_device = devices.count == 1 ? devices.urls[0] : select_device(&devices);
-    printf("Connecting to %s.\n", selected_device);
+    const char* selected_device = devices.urls[0];
+    tobii_device_t* device;
 
     error = tobii_device_create(api, selected_device, &device);
     free_device_list(&devices);
     if (error != TOBII_ERROR_NO_ERROR)
     {
-        //fprintf(stderr, "Failed to initialize the device with url %s.\n", selected_device);
         tobii_api_destroy(api);
-        DeleteCriticalSection(&log_mutex);
         return -3;
     }
 
-    latest_gaze_point.timestamp_us = 0LL;
+    latest_gaze_point.timestamp_us = 0;
     latest_gaze_point.validity = TOBII_VALIDITY_INVALID;
-    // Start subscribing to gaze point data, in this sample we supply a tobii_gaze_point_t variable to store latest value.
-    error = tobii_gaze_point_subscribe(device, gaze_callback, &latest_gaze_point);
+    latest_gaze_point.position_xy[0] = 0;
+    latest_gaze_point.position_xy[1] = 0;
+    error = tobii_gaze_point_subscribe(device, gaze_callback, NULL);
     if (error != TOBII_ERROR_NO_ERROR)
     {
-        //fprintf(stderr, "Failed to subscribe to gaze stream.\n");
-
         tobii_device_destroy(device);
         tobii_api_destroy(api);
-        DeleteCriticalSection(&log_mutex);
         return -4;
     }
-
-    // Create event objects used for inter thread signaling
+/*
     HANDLE reconnect_event = CreateEvent(NULL, FALSE, FALSE, NULL);
     HANDLE timesync_event = CreateWaitableTimer(NULL, TRUE, NULL);
     HANDLE exit_event = CreateEvent(NULL, FALSE, FALSE, NULL);
     if (reconnect_event == NULL || timesync_event == NULL || exit_event == NULL)
     {
-        //fprintf(stderr, "Failed to create event objects.\n");
-
         tobii_device_destroy(device);
         tobii_api_destroy(api);
-        DeleteCriticalSection(&log_mutex);
         return -5;
     }
 
@@ -248,11 +215,8 @@ JNIEXPORT jint JNICALL Java_jni_tobii_init(JNIEnv* env, jclass c)
     HANDLE thread_handle = CreateThread(NULL, 0U, reconnect_and_timesync_thread, &thread_context, 0U, NULL);
     if (thread_handle == NULL)
     {
-        //fprintf(stderr, "Failed to create reconnect_and_timesync thread.\n");
-
         tobii_device_destroy(device);
         tobii_api_destroy(api);
-        DeleteCriticalSection(&log_mutex);
         return -6;
     }
 
@@ -263,48 +227,21 @@ JNIEXPORT jint JNICALL Java_jni_tobii_init(JNIEnv* env, jclass c)
     BOOL timer_error = SetWaitableTimer(thread_context.timesync_event, &due_time, 0, NULL, NULL, FALSE);
     if (timer_error == FALSE)
     {
-        //fprintf(stderr, "Failed to schedule timer event.\n");
-
         tobii_device_destroy(device);
         tobii_api_destroy(api);
-        DeleteCriticalSection(&log_mutex);
         return -7;
     }
-
-    return_string = (char*) malloc(1024);
-    return 1l;
+*/
+    return 0;
 }
 
-JNIEXPORT jstring JNICALL Java_jni_tobii_gazePosition(JNIEnv* env, jclass c)
+JNIEXPORT jfloatArray JNICALL Java_tobii_Tobii_jniGazePosition(JNIEnv* env, jclass)
 {
-    (void)(c);
-
-    sprintf(return_string, "init");
-
-    if (!InterlockedCompareExchange(&thread_context.is_reconnecting, 0L, 0L))
-    {
-        tobii_error_t error = tobii_device_process_callbacks(device);
-
-        if (error == TOBII_ERROR_CONNECTION_FAILED)
-        {
-            InterlockedExchange(&thread_context.is_reconnecting, 1L);
-            SetEvent(thread_context.reconnect_event);
-        }
-        else if (error != TOBII_ERROR_NO_ERROR)
-        {
-            sprintf(return_string, "error");
-        }
-
-        if (latest_gaze_point.validity == TOBII_VALIDITY_VALID)
-        {
-            sprintf(return_string, "Gaze point: %f %f", (double)latest_gaze_point.position_xy[0], (double)latest_gaze_point.position_xy[1]);
-        }
-
-        else
-        {
-            sprintf(return_string, "invalid");
-        }
-    }
-    return (*env)->NewStringUTF(env, return_string);
+    jfloatArray return_jfloat_array = env->NewFloatArray(2);
+    jfloat return_jfloat_array_elements[2];
+    return_jfloat_array_elements[0] = latest_gaze_point.position_xy[0];
+    return_jfloat_array_elements[1] = latest_gaze_point.position_xy[1];
+    env->SetFloatArrayRegion(return_jfloat_array, 0, 2, return_jfloat_array_elements);
+    return return_jfloat_array;
 }
 
