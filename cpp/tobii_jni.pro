@@ -16,7 +16,12 @@ LIBS += -ltobii_stream_engine
 TARGET = tobii_jni_stream_engine
 
 SOURCES += \
-    tobii_jni.cpp
+    tobii_jni.cpp \
+    tobii_device.cpp
 
 HEADERS += \
-    tobii_jni.h
+    tobii_jni.h \
+    tobii_api.h \
+    tobii_device.h \
+    tobii_headers.h \
+    non_copyable.h
