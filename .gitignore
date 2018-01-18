@@ -1,6 +1,8 @@
 build*
 cpp/*.pro.user
-java/.settings
-java/.classpath
-java/.project
-java/target
+.settings
+.classpath
+.project
+target
+*.iml
+.idea
