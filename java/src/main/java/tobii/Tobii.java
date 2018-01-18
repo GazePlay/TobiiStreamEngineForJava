@@ -20,10 +20,8 @@ public class Tobii
 
 	private Tobii()
 	{
-		//loadLibraryFromResources("/lib/tobii/x64/tobii_stream_engine.dll");
-		//loadLibraryFromResources("/lib/tobii/x64/tobii_jni_stream_engine.dll");
-		System.load("C:\\Users\\Coyl\\TobiiStreamEngineForJava\\java\\src\\main\\resources\\lib\\tobii\\x64\\tobii_stream_engine.dll");
-		System.load("C:\\Users\\Coyl\\TobiiStreamEngineForJava\\java\\src\\main\\resources\\lib\\tobii\\x64\\tobii_jni_stream_engine.dll");
+		loadLibraryFromResources("/lib/tobii/x64/tobii_stream_engine.dll");
+		loadLibraryFromResources("/lib/tobii/x64/tobii_jni_stream_engine.dll");
 		int code = jniInit();
 		System.out.println("Tobii init code error " + code);
 	}

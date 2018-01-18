@@ -17,7 +17,8 @@ TARGET = tobii_jni_stream_engine
 
 SOURCES += \
     tobii_jni.cpp \
-    tobii_device.cpp
+    tobii_device.cpp \
+    tobii_api.cpp
 
 HEADERS += \
     tobii_jni.h \

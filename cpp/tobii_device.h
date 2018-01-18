@@ -3,7 +3,7 @@
 #include "non_copyable.h"
 
 class TobiiAPI;
-class tobii_device_t;
+struct tobii_device_t;
 
 class TobiiDevice : public NonCopyable
 {
@@ -13,11 +13,12 @@ class TobiiDevice : public NonCopyable
 
         ~TobiiDevice();
 
-        void subscribe_gaze_point_listener();
+        tobii_device_t* get_device();
 
-        static void url_receiver(char const* url, void* user_data);
+        float* get_latest_gaze_point();
 
-    public :
+    private :
 
         tobii_device_t* device;
+
 };

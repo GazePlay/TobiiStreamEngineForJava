@@ -1,54 +1,61 @@
 #include "tobii_device.h"
-extern "C"
-{
-#include "tobii_headers.h"
-}
 #include "tobii_api.h"
-#include <cstdlib>
-#include <cstdio>
-#include <cstring>
-#include <functional>
+#include "tobii_headers.h"
+#include <thread>
+#include <chrono>
 
 using namespace std;
+using namespace std::chrono;
 
 namespace
 {
-    struct url_receiver_context_t
-    {
-        char** urls;
-        int capacity;
-        int count;
-    };
+    float latest_gaze_point[2] = {0.5f, 0.5f};
 
-    struct device_list_t
+    string device_url = "";
+
+    void url_receiver(const char* url, void*)
     {
-        char** urls;
-        int count;
-    };
+        device_url = string(url);
+    }
+
+    void gaze_callback(const tobii_gaze_point_t* gaze_point, void*)
+    {
+        latest_gaze_point[0] = gaze_point->position_xy[0];
+        latest_gaze_point[1] = gaze_point->position_xy[1];
+    }
 }
 
 TobiiDevice::TobiiDevice(TobiiAPI& api) :
     device(nullptr)
 {
-    struct device_list_t list = { NULL, 0 };
+    int error = tobii_enumerate_local_device_urls(api.get_api(), url_receiver, NULL);
+    if (error != TOBII_ERROR_NO_ERROR)
+    {
+        throw -2;
+    }
 
-    struct url_receiver_context_t url_receiver_context;
-    url_receiver_context.count = 0;
-    url_receiver_context.capacity = 16;
-    url_receiver_context.urls = (char**)malloc(sizeof(char*) * (unsigned int)url_receiver_context.capacity);
-
-    tobii_enumerate_local_device_urls(api.api, url_receiver, &url_receiver_context);
-
-    list.urls = url_receiver_context.urls;
-    list.count = url_receiver_context.count;
-    int error = tobii_device_create(api.api, list.urls[0], &device);
-    for (int i = 0; i < list.count; ++i)
-        free(list.urls[i]);
-    free(list.urls);
+    error = tobii_device_create(api.get_api(), device_url.c_str(), &device);
     if (error != TOBII_ERROR_NO_ERROR)
     {
         device = nullptr;
+        throw -2;
     }
+
+    error = tobii_gaze_point_subscribe(device, gaze_callback, NULL);
+    if (error != TOBII_ERROR_NO_ERROR)
+    {
+        throw -2;
+    }
+
+    thread([this]
+    {
+        while (true)
+        {
+            tobii_wait_for_callbacks(NULL, 1, &device);
+            tobii_device_process_callbacks(device);
+            this_thread::sleep_for(milliseconds(16));
+        }
+    }).detach();
 }
 
 TobiiDevice::~TobiiDevice()
@@ -59,38 +66,12 @@ TobiiDevice::~TobiiDevice()
     }
 }
 
-void TobiiDevice::subscribe_gaze_point_listener(function<void(const tobii_gaze_point_t*, void*)> gaze_callback)
+tobii_device_t* TobiiDevice::get_device()
 {
-    int error = tobii_gaze_point_subscribe(device, gaze_callback.target<void(*)(const tobii_gaze_point_t*, void*)>, NULL);
-    if (error != TOBII_ERROR_NO_ERROR)
-    {
-     //   throw new
-    }
+    return device;
 }
 
-
-void TobiiDevice::url_receiver(char const* url, void* user_data)
+float* TobiiDevice::get_latest_gaze_point()
 {
-    struct url_receiver_context_t* context = (struct url_receiver_context_t*) user_data;
-
-    if (context->count >= context->capacity)
-    {
-        context->capacity *= 2;
-        char** urls = (char**)realloc(context->urls, sizeof(char*) * (unsigned int)context->capacity);
-        if (!urls)
-        {
-            fprintf(stderr, "Allocation failed\n");
-            return;
-        }
-        context->urls = urls;
-    }
-
-    size_t url_length = strlen(url) + 1;
-    context->urls[context->count] = (char*)malloc(url_length);
-    if (!context->urls[context->count])
-    {
-        fprintf(stderr, "Allocation failed\n");
-        return;
-    }
-    memcpy(context->urls[context->count++], url, url_length);
+    return latest_gaze_point;
 }

@@ -1,31 +1,20 @@
 #pragma once
 
-#include "tobii_headers.h"
 #include "non_copyable.h"
+
+struct tobii_api_t;
 
 class TobiiAPI : public NonCopyable
 {
     public :
 
-        TobiiAPI() :
-            api(nullptr)
-        {
-            tobii_error_t code = tobii_api_create(&api, NULL, NULL);
-            if (code != TOBII_ERROR_NO_ERROR)
-            {
-                api = nullptr;
-            }
-        }
+        TobiiAPI();
 
-        ~TobiiAPI()
-        {
-            if (api != nullptr)
-            {
-                tobii_api_destroy(api);
-            }
-        }
+        ~TobiiAPI();
 
-    public :
+        tobii_api_t* get_api();
+
+    private :
 
         tobii_api_t* api;
 };
