@@ -6,7 +6,7 @@
 
 	<groupId>com.github.coylz</groupId>
 	<artifactId>TobiiStreamEngineForJava</artifactId>
-	<version>1.0</version>
+	<version>master-SNAPSHOT</version>
 
 	<properties>
 		<maven.compiler.target>1.8</maven.compiler.target>
