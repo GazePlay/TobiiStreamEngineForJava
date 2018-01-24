@@ -1,5 +1,5 @@
 build*
-cpp/*.pro.user
+*.pro.user
 .settings
 .classpath
 .project
