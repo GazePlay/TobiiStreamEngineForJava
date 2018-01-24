@@ -1,0 +1,8 @@
+cmake_minimum_required(VERSION 3.9.6)
+project(tobii_jni)
+include_directories("/C/Program Files/Java/default/include")
+include_directories("/C/Program Files/Java/default/include/win32")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../tobii_jni")
+link_directories("${CMAKE_CURRENT_SOURCE_DIR}/../../src/main/resources/lib/tobii/x64")
+link_libraries(tobii_stream_engine)
+add_library(tobii_jni_stream_engine SHARED tobii_jni.cpp tobii_device.cpp tobii_api.cpp)
