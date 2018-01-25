@@ -6,3 +6,8 @@ build*
 target
 *.iml
 .idea
+CMakeCache.txt
+CMakeFiles
+Makefile
+cmake_install.cmake
+
