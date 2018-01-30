@@ -1,8 +1,9 @@
 package tobii;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 
 public class Tobii
 {
@@ -53,16 +54,9 @@ public class Tobii
 		{
 			printIfVerbose("Copying " + resourceFilePath + " into " + dirPath);
 			InputStream in = Tobii.class.getResourceAsStream(resourceFilePath);
-			byte[] buffer = new byte[1024];
-			int read = -1;
 			File tmpFile = new File(dirPath, resourceFilePath);
 			tmpFile.getParentFile().mkdirs();
-			FileOutputStream fos = new FileOutputStream(tmpFile);
-			while((read = in.read(buffer)) != -1) 
-			{
-				fos.write(buffer, 0, read);
-			}
-			fos.close();
+			Files.copy(in, tmpFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 			in.close();
 		}
 		catch (Exception e)
