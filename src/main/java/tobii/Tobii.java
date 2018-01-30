@@ -33,17 +33,17 @@ public class Tobii
 		String tmpDir = System.getProperty("java.io.tmpdir");
 		printIfVerbose("Using tmpdir " + tmpDir);
 		
-		copyResourceIntoDir("/lib/tobii/x64/vcruntime140.dll", tmpDir);
-		copyResourceIntoDir("/lib/tobii/x64/msvcp140.dll", tmpDir);
-		copyResourceIntoDir("/lib/tobii/x64/concrt140.dll", tmpDir);
-		copyResourceIntoDir("/lib/tobii/x64/vccorlib140.dll", tmpDir);
+//		copyResourceIntoDir("/lib/tobii/x64/vcruntime140.dll", tmpDir);
+//		copyResourceIntoDir("/lib/tobii/x64/msvcp140.dll", tmpDir);
+//		copyResourceIntoDir("/lib/tobii/x64/concrt140.dll", tmpDir);
+//		copyResourceIntoDir("/lib/tobii/x64/vccorlib140.dll", tmpDir);
 		copyResourceIntoDir("/lib/tobii/x64/tobii_stream_engine.dll", tmpDir);
 		copyResourceIntoDir("/lib/tobii/x64/tobii_jni_stream_engine.dll", tmpDir);
 		
-		loadLibrary(tmpDir, "/lib/tobii/x64/vcruntime140.dll");
-		loadLibrary(tmpDir, "/lib/tobii/x64/msvcp140.dll");
-		loadLibrary(tmpDir, "/lib/tobii/x64/concrt140.dll");
-		loadLibrary(tmpDir, "/lib/tobii/x64/vccorlib140.dll");
+//		loadLibrary(tmpDir, "/lib/tobii/x64/vcruntime140.dll");
+//		loadLibrary(tmpDir, "/lib/tobii/x64/msvcp140.dll");
+//		loadLibrary(tmpDir, "/lib/tobii/x64/concrt140.dll");
+//		loadLibrary(tmpDir, "/lib/tobii/x64/vccorlib140.dll");
 		loadLibrary(tmpDir, "/lib/tobii/x64/tobii_stream_engine.dll");
 		loadLibrary(tmpDir, "/lib/tobii/x64/tobii_jni_stream_engine.dll");
 	}
@@ -61,7 +61,7 @@ public class Tobii
 		}
 		catch (Exception e)
 		{
-			throw new RuntimeException(e);
+			e.printStackTrace();
 		}
 	}
 
@@ -75,7 +75,7 @@ public class Tobii
 		}
 		catch (Exception e)
 		{
-			throw new RuntimeException(e);
+			e.printStackTrace();
 		}
 	}
 	
