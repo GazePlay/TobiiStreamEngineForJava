@@ -13,6 +13,14 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 	</properties>
 
+
+	<licenses>
+		<license>
+			<name>GNU General Public License (GPL) version 3.0</name>
+			<url>https://www.gnu.org/licenses/gpl-3.0.txt</url>
+		</license>
+	</licenses>
+
 	<dependencies>
 
 	</dependencies>
