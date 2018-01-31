@@ -9,7 +9,7 @@ public class Tobii
 {
     public static boolean verbose = true;
 
-    public static String dataDirectoryPath = "%LocalAppData%\\TobiiStreamEngineForJava";
+    public static String dataDirectoryPath = System.getenv("LocalAppData") + "/TobiiStreamEngineForJava";
 
     private static boolean loaded = false;
 
