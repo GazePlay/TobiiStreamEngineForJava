@@ -46,18 +46,10 @@ public class Tobii
     {
         printIfVerbose("Loading needed libraries using directory " + dataDirectoryPath);
 
-        copyResourceIntoDir("/lib/tobii/x64/vcruntime140.dll", dataDirectoryPath);
-        copyResourceIntoDir("/lib/tobii/x64/msvcp140.dll", dataDirectoryPath);
-        copyResourceIntoDir("/lib/tobii/x64/concrt140.dll", dataDirectoryPath);
-        copyResourceIntoDir("/lib/tobii/x64/vccorlib140.dll", dataDirectoryPath);
         copyResourceIntoDir("/lib/tobii/x64/tobii_stream_engine.dll", dataDirectoryPath);
         copyResourceIntoDir("/lib/tobii/x64/tobii_jni_stream_engine.dll", dataDirectoryPath);
 
-        // loadLibrary(tmpDir, "/lib/tobii/x64/vcruntime140.dll");
-        // loadLibrary(tmpDir, "/lib/tobii/x64/msvcp140.dll");
-        // loadLibrary(tmpDir, "/lib/tobii/x64/concrt140.dll");
-        // loadLibrary(tmpDir, "/lib/tobii/x64/vccorlib140.dll");
-        // loadLibrary(tmpDir, "/lib/tobii/x64/tobii_stream_engine.dll");
+        loadLibrary(dataDirectoryPath, "/lib/tobii/x64/tobii_stream_engine.dll");
         loadLibrary(dataDirectoryPath, "/lib/tobii/x64/tobii_jni_stream_engine.dll");
     }
 
