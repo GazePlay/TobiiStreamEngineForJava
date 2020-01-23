@@ -15,6 +15,8 @@ public class Tobii
 
     private static boolean errorReported = false;
 
+    private static String OS = System.getProperty("os.name").toLowerCase();
+
     public static float[] gazePosition()
     {
         try
@@ -46,12 +48,33 @@ public class Tobii
     {
         printIfVerbose("Loading needed libraries using directory " + dataDirectoryPath);
 
+
+        if (isWindows()) {
+
         copyResourceIntoDir("/lib/tobii/x64/tobii_stream_engine.dll", dataDirectoryPath);
         copyResourceIntoDir("/lib/tobii/x64/tobii_jni_stream_engine.dll", dataDirectoryPath);
 
-        loadLibrary(dataDirectoryPath, "/lib/tobii/x64/tobii_stream_engine.dll");
+
+         loadLibrary(dataDirectoryPath, "/lib/tobii/x64/tobii_stream_engine.dll");
         loadLibrary(dataDirectoryPath, "/lib/tobii/x64/tobii_jni_stream_engine.dll");
+
+		} else if (isUnix()) {
+
+        copyResourceIntoDir("/lib/tobii/x64/libtobii_jni_stream_engine.so", dataDirectoryPath);
+
+        loadLibrary(dataDirectoryPath, "/lib/tobii/x64/libtobii_jni_stream_engine.so");
+
+		}
+
     }
+
+    public static boolean isWindows() {
+		return (OS.contains("win"));
+	}
+
+	public static boolean isUnix() {
+		return (OS.contains("nix") || OS.contains("nux") || OS.indexOf("aix") > 0 );
+	}
 
     private static void copyResourceIntoDir(String resourceFilePath, String dirPath) throws Exception
     {
