@@ -20,15 +20,13 @@ public class TobiiDemo {
             int xPosition = (int) (xRatio * screenWidth);
             int yPosition = (int) (yRatio * screenHeight);
 
-            StringBuilder message = new StringBuilder();
-            message.append("xRatio = ").append(xRatio);
-            message.append(", ");
-            message.append("yRatio = ").append(yRatio);
-            message.append(", ");
-            message.append("xPosition = ").append(xPosition);
-            message.append(", ");
-            message.append("yPosition = ").append(yPosition);
-
+            String message = "xRatio = " + xRatio +
+                    ", " +
+                    "yRatio = " + yRatio +
+                    ", " +
+                    "xPosition = " + xPosition +
+                    ", " +
+                    "yPosition = " + yPosition;
             System.out.println(message);
 
             Thread.sleep(1000);
