@@ -6,9 +6,9 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
 public class Tobii {
-    public static boolean verbose = true;
+    private static boolean verbose = true;
 
-    public static String dataDirectoryPath = System.getenv("LocalAppData") + "/TobiiStreamEngineForJava";
+    private static String dataDirectoryPath = System.getenv("LocalAppData") + "/TobiiStreamEngineForJava";
 
     private static boolean loaded = false;
 
@@ -55,17 +55,25 @@ public class Tobii {
 
             loadLibrary(dataDirectoryPath, "/lib/tobii/x64/libtobii_jni_stream_engine.so");
 
-        }
+        } else if (isMac()) {
+
+            //TODO Compile and add MacOS libraries here
+
+		}
 
     }
 
-    public static boolean isWindows() {
+    private static boolean isWindows() {
         return (OS.contains("win"));
     }
 
-    public static boolean isUnix() {
-        return (OS.contains("nix") || OS.contains("nux") || OS.indexOf("aix") > 0);
+    private static boolean isUnix() {
+        return (OS.contains("nix") || OS.contains("nux") || OS.contains("aix"));
     }
+
+    private static boolean isMac() {
+        return (OS.contains("mac"));
+	}
 
     private static void copyResourceIntoDir(String resourceFilePath, String dirPath) throws Exception {
         printIfVerbose("Copying " + resourceFilePath + " into " + dirPath);
