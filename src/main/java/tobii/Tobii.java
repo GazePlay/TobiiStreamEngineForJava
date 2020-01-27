@@ -8,8 +8,6 @@ import java.nio.file.StandardCopyOption;
 public class Tobii {
     private static boolean verbose = true;
 
-    private static String dataDirectoryPath = System.getenv("LocalAppData") + "/TobiiStreamEngineForJava";
-
     private static boolean loaded = false;
 
     private static boolean errorReported = false;
@@ -38,9 +36,39 @@ public class Tobii {
     }
 
     private static void loadNeededLibraries() throws Exception {
+
+        String dataDirectoryPath = getDataDirectoryPath();
+
         printIfVerbose("Loading needed libraries using directory " + dataDirectoryPath);
 
+        loadTobiiLibraries(dataDirectoryPath);
 
+    }
+
+    private static String getDataDirectoryPath() {
+        String appDataDirectoryPath = "";
+
+        if (isWindows()) {
+
+            appDataDirectoryPath = System.getenv("LocalAppData");
+
+        } else if (isUnix()) {
+
+            appDataDirectoryPath = System.getProperty("user.home");
+
+        } else if (isMac()) {
+
+            //TODO test following commented lines on Mac
+            /*appDataDirectoryPath = System.getProperty("user.home");
+            appDataDirectoryPath += "/Library/Application Support";*/
+
+        }
+
+        appDataDirectoryPath += "/.tobiiStreamEngineForJava";
+        return appDataDirectoryPath;
+    }
+
+    private static void  loadTobiiLibraries( String dataDirectoryPath) throws Exception {
         if (isWindows()) {
 
             copyResourceIntoDir("/lib/tobii/x64/tobii_stream_engine.dll", dataDirectoryPath);
@@ -59,8 +87,7 @@ public class Tobii {
 
             //TODO Compile and add MacOS libraries here
 
-		}
-
+        }
     }
 
     private static boolean isWindows() {
@@ -73,7 +100,7 @@ public class Tobii {
 
     private static boolean isMac() {
         return (OS.contains("mac"));
-	}
+    }
 
     private static void copyResourceIntoDir(String resourceFilePath, String dirPath) throws Exception {
         printIfVerbose("Copying " + resourceFilePath + " into " + dirPath);
