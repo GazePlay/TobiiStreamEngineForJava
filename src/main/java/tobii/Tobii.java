@@ -68,7 +68,7 @@ public class Tobii {
         return appDataDirectoryPath;
     }
 
-    private static void  loadTobiiLibraries( String dataDirectoryPath) throws Exception {
+    private static void loadTobiiLibraries(String dataDirectoryPath) throws Exception {
         if (isWindows()) {
 
             copyResourceIntoDir("/lib/tobii/x64/tobii_stream_engine.dll", dataDirectoryPath);
