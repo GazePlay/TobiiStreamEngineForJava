@@ -5,7 +5,7 @@ This project have been tested with Tobii 4C eye-trackers.
 
 It is currently working on:
 - [X]  Windows (tested on Windows 10)
-- [X]  Lunix (tested on Ubuntu 18.04)
+- [X]  Linux (tested on Ubuntu 18.04)
 - [ ]  MacOS (we're working on it.)
 
 
