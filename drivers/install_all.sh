@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 JAVA_LIB_DIR=../src/main/resources/lib
 TOBII_LIB_DIR=../cpp/tobii_jni/tobii
