@@ -79,8 +79,10 @@ public class Tobii {
 
         } else if (isUnix()) {
 
+            copyResourceIntoDir("/lib/tobii/x64/libtobii_stream_engine.so", dataDirectoryPath);
             copyResourceIntoDir("/lib/tobii/x64/libtobii_jni_stream_engine.so", dataDirectoryPath);
 
+            loadLibrary(dataDirectoryPath, "/lib/tobii/x64/libtobii_stream_engine.so");
             loadLibrary(dataDirectoryPath, "/lib/tobii/x64/libtobii_jni_stream_engine.so");
 
         } else if (isMac()) {
