@@ -14,19 +14,23 @@ public class Tobii {
 
     private static String OS = System.getProperty("os.name").toLowerCase();
 
-    public static float[] getGazePosition;
+    private static float[] gazePosition;
+
+    public static float[] getGazePosition() {
+        return gazePosition;
+    }
 
     public static float[] gazePosition() {
         try {
             loadIfNotLoaded();
-            getGazePosition = jniGazePosition();
+            gazePosition = jniGazePosition();
             return jniGazePosition();
         } catch (Throwable e) {
             if (!errorReported) {
                 e.printStackTrace();
                 errorReported = true;
             }
-            getGazePosition = new float[]{0.5f, 0.5f};
+            gazePosition = new float[]{0.5f, 0.5f};
             return new float[]{0.5f, 0.5f};
         }
     }
