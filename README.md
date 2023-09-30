@@ -1,7 +1,7 @@
 # TobiiStreamEngineForJava
 This project allows you to use the Tobii Core SDK Stream Engine API in Java language through the Java Native Interface (JNI)
 
-This project have been tested with Tobii 4C eye-trackers.
+This project have been tested with Tobii 4C et Tobii 5 eye-trackers .
 
 It is currently working on:
 - [X]  Windows (tested on Windows 10)
