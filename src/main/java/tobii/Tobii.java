@@ -27,15 +27,21 @@ public class Tobii {
         }
     }
 
-    public static void loadIfNotLoaded() throws Exception {
+    private static void loadIfNotLoaded() throws Exception {
         if (loaded) return;
         loaded = true;
         loadNeededLibraries();
         int code = jniInit();
         printIfVerbose("Init code error " + code);
     }
+    
+    public static void reloaded() throws Exception {
+        loadNeededLibraries();
+        int code = jniInit();
+        printIfVerbose("Init code error " + code);
+    }
 
-    public static void loadNeededLibraries() throws Exception {
+    private static void loadNeededLibraries() throws Exception {
 
         String dataDirectoryPath = getDataDirectoryPath();
 
@@ -45,7 +51,7 @@ public class Tobii {
 
     }
 
-    public static String getDataDirectoryPath() {
+    private static String getDataDirectoryPath() {
         String appDataDirectoryPath = "";
 
         if (isWindows()) {
@@ -68,7 +74,7 @@ public class Tobii {
         return appDataDirectoryPath;
     }
 
-    public static void loadTobiiLibraries(String dataDirectoryPath) throws Exception {
+    private static void loadTobiiLibraries(String dataDirectoryPath) throws Exception {
         if (isWindows()) {
 
             copyResourceIntoDir("/lib/tobii/x64/tobii_stream_engine.dll", dataDirectoryPath);
