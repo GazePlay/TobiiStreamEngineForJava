@@ -39,6 +39,8 @@ public class Tobii {
         String dataDirectoryPath = getDataDirectoryPath();
         loadLibrary(dataDirectoryPath, "/lib/tobii/x64/tobii_stream_engine.dll");
         loadLibrary(dataDirectoryPath, "/lib/tobii/x64/tobii_jni_stream_engine.dll");
+        int code = jniInit();
+        printIfVerbose("Init code error " + code);
     }
 
     private static void loadNeededLibraries() throws Exception {
