@@ -13,6 +13,7 @@ public class Tobii {
     private static boolean errorReported = false;
 
     private static String OS = System.getProperty("os.name").toLowerCase();
+    private static int tobiiStatus = -2; // 0 = detected / -2 = not detected
 
     public static float[] gazePosition() {
         try {
@@ -31,16 +32,20 @@ public class Tobii {
         if (loaded) return;
         loaded = true;
         loadNeededLibraries();
-        int code = jniInit();
-        printIfVerbose("Init code error " + code);
+        tobiiStatus = jniInit();
+        printIfVerbose("Init code error " + tobiiStatus);
     }
 
-    public static void reloaded(){
+    public static void reloadIfNotLoaded(){
         String dataDirectoryPath = getDataDirectoryPath();
         loadLibrary(dataDirectoryPath, "/lib/tobii/x64/tobii_stream_engine.dll");
         loadLibrary(dataDirectoryPath, "/lib/tobii/x64/tobii_jni_stream_engine.dll");
-        int code = jniInit();
-        printIfVerbose("Init code error " + code);
+        tobiiStatus = jniInit();
+        printIfVerbose("Init code error " + tobiiStatus);
+    }
+
+    public static int getTobiiStatus(){
+        return tobiiStatus;
     }
 
     private static void loadNeededLibraries() throws Exception {
