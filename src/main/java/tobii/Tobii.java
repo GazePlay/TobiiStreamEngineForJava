@@ -34,11 +34,11 @@ public class Tobii {
         int code = jniInit();
         printIfVerbose("Init code error " + code);
     }
-    
-    public static void reloaded() throws Exception {
-        loadNeededLibraries();
-        int code = jniInit();
-        printIfVerbose("Init code error " + code);
+
+    public static void reloaded(){
+        String dataDirectoryPath = getDataDirectoryPath();
+        loadLibrary(dataDirectoryPath, "/lib/tobii/x64/tobii_stream_engine.dll");
+        loadLibrary(dataDirectoryPath, "/lib/tobii/x64/tobii_jni_stream_engine.dll");
     }
 
     private static void loadNeededLibraries() throws Exception {
