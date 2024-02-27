@@ -5,11 +5,13 @@ import java.awt.*;
 public class TobiiDemo {
     public static void main(String[] args) throws Exception {
 
-        Toolkit defaultToolkit = Toolkit.getDefaultToolkit();
-        Dimension screenSize = defaultToolkit.getScreenSize();
-        double screenWidth = screenSize.getWidth();
-        double screenHeight = screenSize.getHeight();
+        GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+        int screenWidth = gd.getDisplayMode().getWidth();
+        int screenHeight = gd.getDisplayMode().getHeight();
+
         System.out.println("screenWidth = " + screenWidth + ", screenHeight = " + screenHeight);
+
+
 
         while (true) {
             float[] position = Tobii.gazePosition();
